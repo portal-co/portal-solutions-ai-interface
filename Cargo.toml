@@ -1,0 +1,27 @@
+[package]
+name = "portal-solutions-ai-interface"
+version = "0.1.0"
+edition = "2021"
+
+
+
+[workspace]
+members = [".","xtp"]
+resolver = "3"
+
+[workspace.dependencies]
+extism-pdk = "1.1.0"
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+base64-serde = "0.7"
+base64 = "0.21"
+boa_engine = "0.20.0"
+anyhow = "1.0.100"
+
+[dependencies]
+anyhow.workspace = true
+boa_engine.workspace = true
+
+serde.workspace = true
+serde_json.workspace = true
