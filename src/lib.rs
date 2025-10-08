@@ -65,7 +65,9 @@ impl Reactor {
                     .and_then(|a| a.get("code"))
                     .and_then(|a| a.as_str())
                     .context("in geting the code")?;
-                let code = format!("(async ()=>{{{code}}})()");
+                let gen_code =
+                    |code: &str| format!("(async ()=>{{{code}}})().then(a=>JSON.stringify(a))");
+                let code = gen_code(code);
 
                 #[cfg(feature = "wasm-bindgen")]
                 let w = self.wbg_ctx().as_ref();
@@ -91,17 +93,23 @@ impl Reactor {
                                 a: wasm_bindgen::JsValue,
                                 code: &str,
                                 call_tool: &ToolCallClosure,
-                            );
+                            ) -> wasm_bindgen::JsValue;
                         }
-                        Either::Left(go(
-                            a.clone(),
-                            &code,
-                            self.wbg_tool_call.get_or_init(|| {
-                                Closure::new(|v| {
-                                    Err(wasm_bindgen::JsValue::from_str("invalid tool call"))
-                                })
-                            }),
-                        ))
+                        Either::Left(async move {
+                            match go(
+                                a.clone(),
+                                &code,
+                                self.wbg_tool_call.get_or_init(|| {
+                                    Closure::new(|v| {
+                                        Err(wasm_bindgen::JsValue::from_str("invalid tool call"))
+                                    })
+                                }),
+                            )
+                            .await
+                            {
+                                v => v.as_string().unwrap(),
+                            }
+                        })
                     }
                     _ => match self.ctx().lock().unwrap() {
                         mut l => {
@@ -113,6 +121,7 @@ impl Reactor {
                             let v = v.into_js_future(&mut l);
                             Either::Right(async move {
                                 let v = v.await;
+                                v.unwrap().as_string().unwrap().display_lossy().to_string()
                             })
                         }
                     },
