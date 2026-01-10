@@ -1,13 +1,14 @@
 # portal-solutions-ai-interface
 
 ## Description
-Project portal-solutions-ai-interface
+AI interface layer for Portal Solutions, supporting `extism` plugins and `boa` (JS engine).
 
 ## Goals
-- [ ] Add project goals
+- [ ] Interface with AI agents/plugins
+- [ ] Execute JS logic via Boa
 
 ## Progress
-- [ ] Initial setup
+- [ ] Workspace setup with Extism/Boa integration
 
 ---
 *AI assisted*
